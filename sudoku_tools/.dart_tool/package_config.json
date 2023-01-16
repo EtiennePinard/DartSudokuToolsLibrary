@@ -1,0 +1,14 @@
+{
+  "configVersion": 2,
+  "packages": [
+    {
+      "name": "sudoku_tools",
+      "rootUri": "../",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    }
+  ],
+  "generated": "2023-01-13T19:25:03.611018Z",
+  "generator": "pub",
+  "generatorVersion": "2.18.6"
+}
