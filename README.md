@@ -1,9 +1,8 @@
-# DartSudokuToolsLibrary
+# Dart Sudoku Tools Library
 A library made in dart to aid in the solving of sudokus and the generation of valid sudoku boards with unique solutions.
 
 ## How to use the library in your project
-- Download the source code and copy it into your project directory.
-- Clone the repo and add this to your pubspec.yaml 
+Clone the repo and add this to your pubspec.yaml 
 ```yml
   sudoku_tools:
     path: # Path to the clone of this repository
@@ -12,7 +11,6 @@ A library made in dart to aid in the solving of sudokus and the generation of va
 ## How to generate and solve sudoku
 A sudoku is a list of integers of length 81 with digits 0 to 9.  
 0 means that the cell is empty and all the other digits represents valid sudoku digits.  
-
 
 ```dart
 import 'package:sudoku_tools/src/sudokuGenerator.dart';
