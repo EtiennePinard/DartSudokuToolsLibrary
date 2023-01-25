@@ -135,7 +135,7 @@ bool _sortDirection(_Direction direction, int directionIndex,
     }
 
     // BAS unfortunately did not work for the second digit and so we are at PAS
-    if (_preferredAdjacentCellSwap(indexInDirection, encounteredDigits,
+    if (_preferredAdjacentCellSwap(indexInDirection, indicesInDirection, encounteredDigits,
         direction, directionIndex, board[firstDuplicateIndex], board)) {
       continue; // PAS was successful were BAS was not, let's go!
     }
@@ -190,6 +190,7 @@ bool _boxAdjacentCellSwap(
 // this function but for now it works and I have better things to do
 bool _preferredAdjacentCellSwap(
     int indexInDirection,
+    List<int> indicesInDirection,
     List<bool> digitsAlreadyInDirection,
     _Direction direction,
     int directionIndex,
@@ -204,53 +205,11 @@ bool _preferredAdjacentCellSwap(
   // fail-safe is executed called Advance and Backtrack Sort (ABS) which allows the
   // algorithm to continue sorting the next row and column before coming back.
   // Somehow, this fail-safe ensures success.
-  for (int counter = 0; counter < 18; counter++) {
-    SWAP:
-    for (int scanIndex = 0; scanIndex <= indexInDirection; scanIndex++) {
-      int pacing = (direction == _Direction.ROW
-          ? rowOrigin + scanIndex
-          : colOrigin + scanIndex * 9);
-      if (board[pacing] == duplicateValue) {
-        int adjacentCell = -1;
-        int adjacentNo = -1;
-        int decrement = (direction == _Direction.ROW ? 9 : 1);
+  for (int counter = 0; counter < 18; counter++) { // Do the swap a total of 18 times
+    final indexToSwap = indicesInDirection.firstWhere((index) => board[index] == duplicateValue);
+    // Now gotta look at the code to see what happens in the case of a row,
+    // Or if the column is at the right edge of a box
 
-        for (int c = 1; c < 3 - (directionIndex % 3); c++) {
-          adjacentCell =
-              pacing + (direction == _Direction.ROW ? (c + 1) * 9 : c + 1);
-
-          // this creates the preference for swapping with unregistered numbers
-          if ((direction == _Direction.ROW && adjacentCell >= 81) ||
-              (direction == _Direction.COLUMN && adjacentCell % 9 == 0)) {
-            adjacentCell -= decrement;
-          } else {
-            adjacentNo = board[adjacentCell];
-            if (directionIndex % 3 != 0 ||
-                c != 1 ||
-                blindSwapIndex[adjacentCell] ||
-                digitsAlreadyInDirection[adjacentNo]) {
-              adjacentCell -= decrement;
-            }
-          }
-          adjacentNo = board[adjacentCell];
-
-          // as long as it hasn't been swapped before, swap it
-          if (!blindSwapIndex[adjacentCell]) {
-            blindSwapIndex[adjacentCell] = true;
-            board[pacing] = adjacentNo;
-            board[adjacentCell] = duplicateValue;
-            duplicateValue = adjacentNo;
-
-            if (!digitsAlreadyInDirection[adjacentNo]) {
-              digitsAlreadyInDirection[adjacentNo] = true;
-              return true;
-            }
-            // Try again to PAB
-            break SWAP;
-          }
-        }
-      }
-    }
   }
   return false;
 }
