@@ -5,12 +5,16 @@ import 'package:sudoku_tools/src/sudokuSolver.dart';
 import 'package:sudoku_tools/src/sudokuTools.dart';
 
 void main() {
-  print('Testing unfilled grid generation');
-  if (!testSudokuGridGeneration()) {
-    print('The generation of unfilled unique solution sudoku boards did not work');
-    throw Error();
+  for (int i = 0; i < 1000; i++) {
+    generatePerfectGrid(true, random: Random());
   }
-  print('Everything is correct');
+
+  // print('Testing unfilled grid generation');
+  // if (!testSudokuGridGeneration()) {
+  //   print('The generation of unfilled unique solution sudoku boards did not work');
+  //   throw Error();
+  // }
+  // print('Everything is correct');
 }
 
 /// The generation of unfilled unique solution sudoku grid

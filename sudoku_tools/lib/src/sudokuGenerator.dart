@@ -24,7 +24,8 @@ List<int> generateRandomUniqueSolutionSudoku(Random random) {
 /// the shrinking squares approach. <br> <br>
 /// Explaining Video: https://www.youtube.com/watch?v=LHCHH5siBCg <br>
 /// Java example: https://github.com/mfgravesjr/finished-projects/tree/master/SudokuGridGenerator
-List<int> generatePerfectGrid(bool fillBoard, {Random? random, List<int>? definiteBoard}) {
+List<int> generatePerfectGrid(bool fillBoard,
+    {Random? random, List<int>? definiteBoard}) {
   late final List<int> board;
   if (fillBoard) {
     if (random == null) {
@@ -35,7 +36,8 @@ List<int> generatePerfectGrid(bool fillBoard, {Random? random, List<int>? defini
     _randomlyCorrectlyFillEachBox(random, board);
   } else {
     if (definiteBoard == null) {
-      throw ArgumentError("The definiteBoard parameter cannot be null if you are "
+      throw ArgumentError(
+          "The definiteBoard parameter cannot be null if you are "
           "not filling the board!");
     }
     board = definiteBoard;
@@ -88,11 +90,8 @@ void _randomlyCorrectlyFillEachBox(Random random, List<int> board) {
   }
 }
 
-bool _sortDirection(
-    _Direction direction,
-    int directionIndex,
-    List<bool> sortedIndices,
-    List<int> board) {
+bool _sortDirection(_Direction direction, int directionIndex,
+    List<bool> sortedIndices, List<int> board) {
   // The index are the numbers. The boolean tells us if the index
   // has been encountered in the row or column
   // 0 is left empty since there is no digit 0 in a sudoku board
@@ -121,17 +120,17 @@ bool _sortDirection(
     late final int firstDuplicateIndex;
     try {
       firstDuplicateIndex = indicesInDirection.firstWhere(
-              (previousIndex) => board[previousIndex] == digitBeingSorted);
+          (previousIndex) => board[previousIndex] == digitBeingSorted);
     } catch (error) {
       // Just for my sanity
       print(
           'The digit ${digitBeingSorted} at index $index is supposed to have a '
-              'duplicate but it seems like it does not have one.');
+          'duplicate but it seems like it does not have one.');
       throw Error();
     }
 
-    if (_boxAdjacentCellSwap(
-        firstDuplicateIndex, encounteredDigits, sortedIndices, direction, board)) {
+    if (_boxAdjacentCellSwap(firstDuplicateIndex, encounteredDigits,
+        sortedIndices, direction, board)) {
       continue; // BAS Worked for the second duplicate!
     }
 
