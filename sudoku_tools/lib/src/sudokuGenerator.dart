@@ -97,11 +97,11 @@ bool _sortDirection(_Direction direction, int directionIndex,
   // 0 is left empty since there is no digit 0 in a sudoku board
   final encounteredDigits = List.filled(10, false);
   final indicesInDirection = List.filled(9, -1);
-  for (int indexInDirection = 0; indexInDirection < 9; indexInDirection++) {
+  for (int xOrYValue = 0; xOrYValue < 9; xOrYValue++) {
     final index = (direction == _Direction.ROW)
-        ? directionIndex * 9 + indexInDirection
-        : directionIndex + indexInDirection * 9;
-    indicesInDirection[indexInDirection] = index;
+        ? directionIndex * 9 + xOrYValue
+        : directionIndex + xOrYValue * 9;
+    indicesInDirection[xOrYValue] = index;
     final digitBeingSorted = board[index];
 
     // Did we encounter this number?
@@ -135,7 +135,7 @@ bool _sortDirection(_Direction direction, int directionIndex,
     }
 
     // BAS unfortunately did not work for the second digit and so we are at PAS
-    if (_preferredAdjacentCellSwap(indexInDirection, indicesInDirection, encounteredDigits,
+    if (_preferredAdjacentCellSwap(xOrYValue, indicesInDirection, encounteredDigits,
         direction, directionIndex, board[firstDuplicateIndex], board)) {
       continue; // PAS was successful were BAS was not, let's go!
     }
@@ -189,7 +189,7 @@ bool _boxAdjacentCellSwap(
 // this code from the example algorithm in java. I will maybe rewrite
 // this function but for now it works and I have better things to do
 bool _preferredAdjacentCellSwap(
-    int indexInDirection,
+    int xOrYValue,
     List<int> indicesInDirection,
     List<bool> digitsAlreadyInDirection,
     _Direction direction,
@@ -209,7 +209,7 @@ bool _preferredAdjacentCellSwap(
     final indexToSwap = indicesInDirection.firstWhere((index) => board[index] == duplicateValue);
     // Now gotta look at the code to see what happens in the case of a row,
     // Or if the column is at the right edge of a box
-
+    
   }
   return false;
 }
