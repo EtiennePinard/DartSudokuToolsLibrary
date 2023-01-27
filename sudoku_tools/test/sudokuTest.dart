@@ -12,10 +12,10 @@ void main() {
   }
   print('No error found in perfect grid generation');
 
-  print('Testing unfilled grid generation');
+  print('Testing unfilled grid generation...');
   if (!testRandomUniqueSudokuGridGeneration()) {
     print('ERROR: The generation of unfilled unique solution sudoku boards did not work');
-    return;
+    throw Error();
   }
   print('No error found in unfilled grid generation');
   print('Everything is correct');
