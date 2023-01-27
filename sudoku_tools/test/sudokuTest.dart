@@ -5,11 +5,19 @@ import 'package:sudoku_tools/src/sudokuSolver.dart';
 import 'package:sudoku_tools/src/sudokuTools.dart';
 
 void main() {
-  print('Testing unfilled grid generation');
-  if (!testSudokuGridGeneration()) {
-    print('The generation of unfilled unique solution sudoku boards did not work');
+  print('Testing perfect grid generation...');
+  if (!testPerfectSudokuGridGeneration()) {
+    print('ERROR: The generation of perfect sudoku boards did not work');
     throw Error();
   }
+  print('No error found in perfect grid generation');
+
+  print('Testing unfilled grid generation');
+  if (!testRandomUniqueSudokuGridGeneration()) {
+    print('ERROR: The generation of unfilled unique solution sudoku boards did not work');
+    return;
+  }
+  print('No error found in unfilled grid generation');
   print('Everything is correct');
 }
 
@@ -17,12 +25,27 @@ void main() {
 /// requires the generation of a perfect grid and solving that
 /// grid over and over. This means that this function does a pretty
 /// extensive code coverage of the library.
-bool testSudokuGridGeneration() {
+bool testRandomUniqueSudokuGridGeneration() {
   final random = Random();
   for (int i = 0; i < 5; i++) {
     final validSudoku = generateRandomUniqueSolutionSudoku(random);
     if (!doesSudokuHaveAUniqueSolution(validSudoku)) {
       print(sudokuToString(validSudoku));
+      return false;
+    }
+  }
+  return true;
+}
+
+/// Testing the generation of perfect sudoku grid <br>
+/// The function generates 2000 to maybe encounter
+/// BAS and therefore test more of the code.
+bool testPerfectSudokuGridGeneration() {
+  final random = Random();
+  for (int i = 0; i < 2000; i++) {
+    try {
+      generatePerfectGrid(true, random: random);
+    } catch (error) {
       return false;
     }
   }
