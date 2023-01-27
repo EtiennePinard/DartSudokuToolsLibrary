@@ -97,11 +97,11 @@ bool _sortDirection(_Direction direction, int directionIndex,
   // 0 is left empty since there is no digit 0 in a sudoku board
   final encounteredDigits = List.filled(10, false);
   final indicesInDirection = List.filled(9, -1);
-  for (int indexInDirection = 0; indexInDirection < 9; indexInDirection++) {
+  for (int xOrYValue = 0; xOrYValue < 9; xOrYValue++) {
     final index = (direction == _Direction.ROW)
-        ? directionIndex * 9 + indexInDirection
-        : directionIndex + indexInDirection * 9;
-    indicesInDirection[indexInDirection] = index;
+        ? directionIndex * 9 + xOrYValue
+        : directionIndex + xOrYValue * 9;
+    indicesInDirection[xOrYValue] = index;
     final digitBeingSorted = board[index];
 
     // Did we encounter this number?
@@ -135,8 +135,8 @@ bool _sortDirection(_Direction direction, int directionIndex,
     }
 
     // BAS unfortunately did not work for the second digit and so we are at PAS
-    if (_preferredAdjacentCellSwap(indexInDirection, encounteredDigits,
-        direction, directionIndex, board[firstDuplicateIndex], board)) {
+    if (_preferredAdjacentCellSwap(xOrYValue, encounteredDigits, direction,
+        directionIndex, board[firstDuplicateIndex], board)) {
       continue; // PAS was successful were BAS was not, let's go!
     }
     // PAS was not successful, it is time to Advance and Backtrack Sort (ABS)
@@ -189,14 +189,12 @@ bool _boxAdjacentCellSwap(
 // this code from the example algorithm in java. I will maybe rewrite
 // this function but for now it works and I have better things to do
 bool _preferredAdjacentCellSwap(
-    int indexInDirection,
+    int xOrYValueOfDupIndex,
     List<bool> digitsAlreadyInDirection,
     _Direction direction,
     int directionIndex,
     int duplicateValue,
     List<int> board) {
-  int rowOrigin = directionIndex * 9;
-  int colOrigin = directionIndex;
   // noting the location for the blindSwaps to prevent infinite loops.
   final blindSwapIndex = new List.filled(81, false);
   // loop of size 18 to prevent infinite loops as well. Max of 18 swaps are possible.
@@ -206,49 +204,76 @@ bool _preferredAdjacentCellSwap(
   // Somehow, this fail-safe ensures success.
   for (int counter = 0; counter < 18; counter++) {
     SWAP:
-    for (int scanIndex = 0; scanIndex <= indexInDirection; scanIndex++) {
-      int pacing = (direction == _Direction.ROW
-          ? rowOrigin + scanIndex
-          : colOrigin + scanIndex * 9);
-      if (board[pacing] == duplicateValue) {
-        int adjacentCell = -1;
-        int adjacentNo = -1;
-        int decrement = (direction == _Direction.ROW ? 9 : 1);
+    for (int xOrYValue = 0; xOrYValue <= xOrYValueOfDupIndex; xOrYValue++) {
+      int currentIndex = direction == _Direction.ROW
+          ? directionIndex * 9 + xOrYValue
+          : directionIndex + xOrYValue * 9;
+      // Are we at the first duplicate index?
+      if (board[currentIndex] != duplicateValue) {
+        continue;
+      }
 
-        for (int c = 1; c < 3 - (directionIndex % 3); c++) {
-          adjacentCell =
-              pacing + (direction == _Direction.ROW ? (c + 1) * 9 : c + 1);
+      // So we always check in front of us
+      int decrement = (direction == _Direction.ROW ? 9 : 1);
 
-          // this creates the preference for swapping with unregistered numbers
-          if ((direction == _Direction.ROW && adjacentCell >= 81) ||
-              (direction == _Direction.COLUMN && adjacentCell % 9 == 0)) {
+      // How far away you are from the top left corner of the box
+      // 3 means that the row or column contains the top left corner
+      // 0 means that the row or column contains the bottom right corner
+      final flippedBoxDirectionIndex = 3 - (directionIndex % 3);
+
+      // if you are in the first row / column of a box, you can swap with cells
+      // that are in the next two rows (these rows are forward)
+      for (int potentialSwap = 1;
+          potentialSwap < flippedBoxDirectionIndex;
+          potentialSwap++) {
+        int adjacentCell = currentIndex +
+            (direction == _Direction.ROW
+                ? (potentialSwap + 1) * 9
+                : potentialSwap + 1);
+
+        // this creates the preference for swapping with unregistered numbers
+        final swapIndexIsInTheBoard =
+            (direction == _Direction.ROW && adjacentCell >= 81);
+
+        final swapIndexIsNotTheFirstColumnOfTheBox =
+            (direction == _Direction.COLUMN && adjacentCell % 9 == 0);
+        // This condition can only happens in the first iteration of the loop
+        // When the adjacent cell is the furthest away from the current index
+        if (swapIndexIsInTheBoard || swapIndexIsNotTheFirstColumnOfTheBox) {
+          // The furthest index is invalid, trying with the index closer to currentIndex
+          adjacentCell -= decrement;
+        } else {
+          // Index is within the bound
+          if (directionIndex % 3 != 0 || // Column or row is not at the beginning of a box
+              potentialSwap != 1 || // We are at the second iteration of the loop
+              blindSwapIndex[adjacentCell] || // We have already swapped the adjacent cell
+              digitsAlreadyInDirection[board[adjacentCell]]) { // The digit is already in the row or column
+            // Note: The last condition is what creates the preference for unregistered digits
             adjacentCell -= decrement;
-          } else {
-            adjacentNo = board[adjacentCell];
-            if (directionIndex % 3 != 0 ||
-                c != 1 ||
-                blindSwapIndex[adjacentCell] ||
-                digitsAlreadyInDirection[adjacentNo]) {
-              adjacentCell -= decrement;
-            }
-          }
-          adjacentNo = board[adjacentCell];
-
-          // as long as it hasn't been swapped before, swap it
-          if (!blindSwapIndex[adjacentCell]) {
-            blindSwapIndex[adjacentCell] = true;
-            board[pacing] = adjacentNo;
-            board[adjacentCell] = duplicateValue;
-            duplicateValue = adjacentNo;
-
-            if (!digitsAlreadyInDirection[adjacentNo]) {
-              digitsAlreadyInDirection[adjacentNo] = true;
-              return true;
-            }
-            // Try again to PAB
-            break SWAP;
           }
         }
+        final adjacentNo = board[adjacentCell];
+
+        // The index as already been swapped, so lets not waste time and just move on
+        if (blindSwapIndex[adjacentCell]) {
+          continue;
+        }
+
+        blindSwapIndex[adjacentCell] = true;
+        board[currentIndex] = adjacentNo;
+        board[adjacentCell] = duplicateValue;
+        duplicateValue = adjacentNo;
+
+        // Did we find a new digit in the row?
+        if (digitsAlreadyInDirection[adjacentNo]) {
+          // No, digit is already in direction, PAS was not successful
+          // Trying again or just go to PAB
+          break SWAP;
+        }
+
+        // Yes we did! PAS was successful!!!
+        digitsAlreadyInDirection[adjacentNo] = true;
+        return true;
       }
     }
   }
