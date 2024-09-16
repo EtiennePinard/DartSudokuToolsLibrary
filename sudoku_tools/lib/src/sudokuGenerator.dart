@@ -15,6 +15,7 @@ List<int> generateRandomUniqueSolutionSudoku(Random random) {
     final boardClone = List.generate(81, (index) => board[index]);
     if (!doesSudokuHaveAUniqueSolution(boardClone)) {
       board[index] = value;
+      break;
     }
   }
   return board;

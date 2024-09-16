@@ -53,7 +53,7 @@ bool testPerfectSudokuGridGeneration() {
 }
 
 /*
-This is the first random valid sudoku grid which was generated on 11/01/2023!
+This is the first random valid sudoku grid which was generated on 11/01/2023
 [1] [ ] [ ] 	[ ] [ ] [ ] 	[ ] [3] [ ]
 [ ] [5] [ ] 	[ ] [ ] [ ] 	[4] [ ] [2]
 [ ] [ ] [ ] 	[ ] [8] [ ] 	[ ] [ ] [ ]

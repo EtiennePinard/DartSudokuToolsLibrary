@@ -16,13 +16,16 @@ bool doesSudokuHaveAUniqueSolution(List<int> board) {
     for (final value in validValuesToTry) {
       newBoard[index] = value;
       final boardClone = List.generate(81, (index) => newBoard[index]);
+
       if (backtrackSolveSudoku(boardClone)) {
         if (valueWhichProduceSolution == -1) {
           valueWhichProduceSolution = value;
         } else {
+          // There is already one value which solve it, so the sudoku has two solutions
           return false;
         }
       }
+
     }
 
     if (valueWhichProduceSolution == -1) {
@@ -37,7 +40,10 @@ bool doesSudokuHaveAUniqueSolution(List<int> board) {
 /// This function solves the board parameter.
 /// Returns true if the sudoku is solvable else false.
 bool backtrackSolveSudoku(List<int> board) {
+  // This is a list of the square indices for which we tried values
   final lastCorrectIndex = <int>[-1];
+
+  // List of indices that we tried for each square which is not defined
   final addedIndices = List.generate(81,
           (index) =>
       (board[index] == 0) ? List.filled(0, 0, growable: true) : null,
@@ -45,13 +51,20 @@ bool backtrackSolveSudoku(List<int> board) {
 
   int index = 0;
   while (index < 81) {
+
+    // if cell is already defined
     if (board[index] != 0) {
       index++;
-      continue; // Cell is already defined
+      continue;
     }
+
+    // Here we want all the valid numbers which could go in that square
+    // and that we did not try yet
     final validMissingNumbers = getValidNumbersForIndex(index, board).where(
             (missingDigit) => !addedIndices[index]!.contains(missingDigit));
 
+    // There is a valid number that can go in the current square,
+    // therefore, we can advance to the next one
     if (validMissingNumbers.isNotEmpty) {
       // Using index 0 since it is faster than picking a random missing digit
       final validValue = validMissingNumbers.elementAt(0);
@@ -62,8 +75,15 @@ bool backtrackSolveSudoku(List<int> board) {
       index++;
       continue;
     }
-    // Cannot advance with a valid number
-    if (lastCorrectIndex.last == -1) {
+    // Unfortunately, we cannot advance further because there is no valid
+    // numbers which can go into a square.Therefore we have to check
+    // if we are back at the beginning (meaning we can't solve this board)
+    // or we backtrack one index and we try it with another number.
+
+    // We have backtracked to the beginning.
+    // This means that we cannot solve this sudoku using our methods
+    final bool areWeBackToTheBeginning = (lastCorrectIndex.last == -1);
+    if (areWeBackToTheBeginning) {
       return false;
     }
 
